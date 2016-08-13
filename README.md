@@ -6,7 +6,7 @@ Once you have your CSV, the extacted data can be easily visualized using the [Ub
 
 ## How To Use
 
-First up, install the bookmarklet from [http://ummjackson.github.io/uber-data-extractor/](here) by dragging and dropping it in your bookmarks bar.
+First up, install the bookmarklet from [here](http://ummjackson.github.io/uber-data-extractor/) by dragging and dropping it in your bookmarks bar.
 
 Once installed, navigate to https://riders.uber.com/trips, login and then click the bookmarklet from your bookmark bar. Uber currently takes ~5 seconds per page of 20 rides, so depending on how big an Uber user you are things may take a while. You'll see a "Scraping in progress.." message and it will automatically download a CSV once it's done. 
 
