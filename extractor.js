@@ -32,7 +32,7 @@
   // Start the scraper
   artoo.log.debug('Starting the scraper...');
   var ui = new artoo.ui();
-  ui.$().append('<div style="position:fixed; top:35px; left:25px; background-color: #000; color: #FFF; z-index:1000">Scraping in progress... this may take a few minutes!</div>');
+  ui.$().append('<div style="position:fixed; top:35px; left:25px; background-color: #000; color: #FFF; z-index:1000">Scraping in progress... this may take a few minutes! DO NOT CLICK THE EXTENSION AGAIN!</div>');
   var uber = artoo.scrape(scraper);
 
   // Launch the spider

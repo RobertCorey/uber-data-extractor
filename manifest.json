@@ -1,0 +1,45 @@
+{
+  "manifest_version": 2,
+  "name": "Uber Data Extractor",
+  "description": "Easily scrape your Uber ride history to CSV format",
+  "version": "0.3",
+  "permissions": [
+    "background",
+    "webRequest",
+    "webRequestBlocking",
+    "tabs",
+    "https://riders.uber.com/trips"
+  ],
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "browser_action": {
+    "default_title": "Extractor",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png"
+    }
+  },
+  "content_scripts": [
+    {
+    "matches": ["https://riders.uber.com/trips"],
+    "js": ["content.js"],
+    "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "web_accessible_resources": [
+    "artoo.chrome.js",
+    "background.js",
+    "extractor.js"
+  ],
+  "content_security_policy": "default-src 'self';",
+  "minimum_chrome_version": "50"
+}
