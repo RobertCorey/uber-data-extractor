@@ -6,7 +6,9 @@ This extension is required due to Uber enforcing a Content Security Policy (CSP)
 
 ## How To Use
 
-To manually install in Chrome:
+You can install the extension with a single click from the Chrome Web Store: https://chrome.google.com/webstore/detail/uber-data-extractor/ckncaneeemafoonmpammikboiakeaggp
+
+Alternatively, if you'd like to manually install in Chrome:
 
 1. Download the unpackaged app in zip format, and extract the directory to your machine: https://github.com/ummjackson/uber-data-extractor/archive/chrome-extension.zip
 
