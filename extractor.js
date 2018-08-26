@@ -1,66 +1,64 @@
 ;(function($, undefined) {
 
-  // The https://riders.uber.com/trips scraper specification
-  var scraper = {
-    iterator: '.hard .palm-one-whole',
-    data: {
-      trip_id: function($) { return $(this).closest('tr').prev().data('target').slice(6); },
-      date: function($) { return $(this).closest('tr').prev().find('td:nth-child(2)').text().substring(0,8); },
-      date_time: {sel: 'h6:nth-child(3)', method: 'text'},
-      driver: function($) { return $(this).closest('tr').prev().find('td:nth-child(3)').text(); },
-      car_type: function($) { return $(this).closest('tr').prev().find('td:nth-child(5)').text(); },
-      city: function($) { return $(this).closest('tr').prev().find('td:nth-child(6)').text(); },
-      price: {sel: 'h3', method: 'text'},
-      payment_method: function($) { return $(this).closest('tr').prev().find('td:nth-child(7) span:nth-child(2)').text().replace(/[•\s]/g,''); },
-      start_time: { sel: '.trip-address:nth-child(1) p', method:'text'},
-      start_address: { sel: '.trip-address:nth-child(1) h6', method:'text'},
-      end_time: { sel: '.trip-address:nth-child(2) p', method:'text'},
-      end_address: { sel: '.trip-address:nth-child(2) h6', method:'text'}
-    },
-    params: {
-      done: function(data){
-        artoo.s.pushTo('trip_list', data);
-      }
-    } 
-  };
-
-  // Handle pagination
-  function nextUrl($page) {
-    return $page.find('.pagination__next').attr('href');
-  }
-
   // Start the scraper
   artoo.log.debug('Starting the scraper...');
-  var ui = new artoo.ui();
-  ui.$().append('<div style="position:fixed; top:35px; left:25px; background-color: #000; color: #FFF; z-index:1000">Scraping in progress... this may take a few minutes! DO NOT CLICK THE EXTENSION AGAIN!</div>');
-  var uber = artoo.scrape(scraper);
+  // var ui = new artoo.ui();
+  // ui.$().append('<div style="position:fixed; top:35px; left:25px; background-color: #000; color: #FFF; z-index:1000">Scraping in progress... this may take a few minutes! DO NOT CLICK THE EXTENSION AGAIN!</div>');
+  // var uber = artoo.scrape(scraper);
+  class UberScraper {
 
-  // Launch the spider
-  artoo.ajaxSpider(
-    function(i, $data) {
-      return nextUrl(!i ? artoo.$(document) : $data);
-    },
-    {
-      limit: 250,
-      throttle: 5000,
-      scrape: scraper,
-      concat: false,
-      done: function(data) {
-        artoo.log.debug('Finished retrieving data. Downloading...');
-        ui.kill();
-        artoo.saveCsv([].concat.apply([], artoo.s.get('trip_list')), {
-            filename: 'trip-history.csv'
-          });
-          artoo.s.remove('trip_list');          
+    constructor() {
+      this.currentWeekly = this.getWeeklyButtons();
+      this.currentButton = 1;
+      this.previousButton = this.getPreviousButton(this.currentWeekly[0]);
+    }
+  
+    getWeeklyButtons() {
+      return [...document.getElementsByTagName('a')].filter(link => {
+        if (link.href) {
+          return link.href.includes(`payments/weekly-earnings/`);
+        } else {
+          return false;
+        }
+      }).reverse();
+    }
+  
+    getPreviousButton(sibling) {
+      return [...sibling.parentNode.getElementsByTagName('div')]
+        .filter(elem => elem.innerText === 'Previous')[0];
+    }
+    
+    getUrls(months) {
+      let urls = [];
+      let counter = 0;
+      let id = setInterval(() => {
+        let links = this.getWeeklyButtons();
+        urls = urls.concat(links);
+        this.previousButton.click();
+        counter += 1;
+        if (counter > months) {
+          clearInterval(id);
+        }
+      }, 500);
+      return new Promise((resolve, reject)=> {
+        return setTimeout(() => {
+          resolve(urls.map(url => url.href));
+        }, 500 * months);
+      });
+    }
+  }
+  let us = new UberScraper();
+  let parser = new DOMParser();
+  us.getUrls(12).then(urls => {
+    artoo.log.debug(urls);
+    artoo.ajaxSpider(urls, {
+      process: (data) => {
+        let doc = parser.parseFromString(data, "text/html");
+        return Object.values(JSON.parse(doc.getElementById('json-globals').innerHTML).state.weeklyEarnings.weeklyEarningsByWeekOffset)[0].earnings
       },
-      settings: {
-        error: function (request, status, error) {
-          ui.kill();
-          artoo.saveCsv([].concat.apply([], artoo.s.get('trip_list')), {
-              filename: 'trip-history.csv'
-            });
-            artoo.s.remove('trip_list');          
-          }
-      }
+      throttle: 4000,
+    }, data => {
+      artoo.saveJson({data: data}, {filename: 'uber-trips.json'});
     });
+  }); 
 }).call(this, artoo.$);

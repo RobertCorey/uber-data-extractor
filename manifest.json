@@ -8,7 +8,7 @@
     "webRequest",
     "webRequestBlocking",
     "tabs",
-    "https://riders.uber.com/trips"
+    "https://partners.uber.com/*"
   ],
   "icons": {
     "16": "icons/16.png",
@@ -26,7 +26,7 @@
   },
   "content_scripts": [
     {
-    "matches": ["https://riders.uber.com/trips"],
+    "matches": ["https://partners.uber.com/*"],
     "js": ["content.js"],
     "run_at": "document_end"
     }
