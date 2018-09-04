@@ -56,8 +56,9 @@
         let doc = parser.parseFromString(data, "text/html");
         return Object.values(JSON.parse(doc.getElementById('json-globals').innerHTML).state.weeklyEarnings.weeklyEarningsByWeekOffset)[0].earnings
       },
-      throttle: 4000,
+      throttle: 1000,
     }, data => {
+      data = data.filter(val => val.tripStats.tripCount > 0)
       artoo.saveJson({data: data}, {filename: 'uber-trips.json'});
     });
   }); 
